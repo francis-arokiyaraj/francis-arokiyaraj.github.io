@@ -337,7 +337,7 @@ nav{
 <script>
 // ===== DEFAULT PASSWORD HASH (SHA-256 of "francis2025") =====
 // Change via Settings > Security after first login
-const DEFAULT_HASH = "a3b8d2e1f9c4071a6e5d3b2c8f7a0945e6d1b3c2a8f5e4d70192b6c3a4e5f8d2";
+const DEFAULT_HASH = "d9927876b8883e8b9fd58038c0aa3e37983b7135716379068194cd7c6670f941";
 
 async function sha256(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
