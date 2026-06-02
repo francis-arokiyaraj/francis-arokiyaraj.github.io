@@ -193,10 +193,39 @@ nav{
     <div class="login-logo">FRANCIS.DEV <span style="color:var(--accent)">●</span></div>
     <h1 class="login-title">Admin Access</h1>
     <p class="login-sub">This page is private. Enter your admin password to manage your portfolio.</p>
-    <input class="login-field" id="pw-input" type="password" placeholder="••••••••" autocomplete="current-password"/>
-    <button class="login-btn" onclick="attemptLogin()">Unlock →</button>
+   
+  <div style="position:relative;margin-bottom:1rem">
+  <input
+    class="login-field"
+    id="pw-input"
+    type="password"
+    placeholder="••••••••"
+    autocomplete="current-password"
+    style="margin-bottom:0;padding-right:3rem"
+  />
+
+  <button
+    onclick="togglePw('pw-input','eye-login')"
+    type="button"
+    style="
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      background:none;
+      border:none;
+      cursor:pointer;
+      color:var(--ink3);
+      font-size:1.1rem;
+      padding:0;
+      line-height:1;
+    "
+  >
+    <span id="eye-login">👁</span>
+  </button>
+</div>
+    <button class="login-btn" onclick="attemptLogin()">Unlock &rarr;</button>
     <div class="login-error" id="login-error">Incorrect password. Try again.</div>
-    <div class="login-hint">💡 Default password: <strong>francis2025</strong><br>Change it immediately in Settings → Security after login.</div>
   </div>
 </div>
 
@@ -311,18 +340,22 @@ nav{
         <div class="content-sub">Change your admin password. Stored as a SHA-256 hash in localStorage.</div>
         <div class="security-card">
           <h3>🔒 Change Password</h3>
-          <div class="form-group"><label>Current Password</label><input id="pw-current" type="password"/></div>
-          <div class="form-group"><label>New Password</label><input id="pw-new" type="password"/></div>
-          <div class="form-group"><label>Confirm New Password</label><input id="pw-confirm" type="password"/></div>
+          <div class="form-group"><label>Current Password</label><div style="position:relative"><input id="pw-current" type="password" style="padding-right:3rem;width:100%"/><button onclick="togglePw('pw-current','eye-cur')" type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1rem;padding:0;line-height:1"><span id="eye-cur">&#128065;</span></button></div></div>
+          <div class="form-group"><label>New Password</label><div style="position:relative"><input id="pw-new" type="password" style="padding-right:3rem;width:100%"/><button onclick="togglePw('pw-new','eye-new')" type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1rem;padding:0;line-height:1"><span id="eye-new">&#128065;</span></button></div></div>
+          <div class="form-group"><label>Confirm New Password</label><div style="position:relative"><input id="pw-confirm" type="password" style="padding-right:3rem;width:100%"/><button onclick="togglePw('pw-confirm','eye-conf')" type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1rem;padding:0;line-height:1"><span id="eye-conf">&#128065;</span></button></div></div>
           <button class="btn-export" style="width:auto;padding:0.65rem 2rem" onclick="changePassword()">Update Password</button>
           <div id="pw-msg" style="margin-top:0.75rem;font-size:0.83rem;display:none"></div>
         </div>
         <div style="margin-top:2rem;padding:1.25rem;background:var(--paper2);border-radius:var(--r2);max-width:500px;font-size:0.82rem;color:var(--ink3);line-height:1.7">
-          <strong style="color:var(--ink)">How it works:</strong><br>
-          Your password is hashed with SHA-256 and stored in your browser's localStorage. 
-          No password is ever sent to a server. Sessions last 24 hours. 
-          The <code>/admin</code> URL is unlisted — don't share it. 
-          For extra security, rename the folder (e.g. <code>/a7x9k</code>) in your repo.
+          <strong style="color:var(--ink)">How changing password works:</strong><br>
+          1. Enter <code>francis2025</code> as Current Password<br>
+          2. Type your new strong password (min 8 chars)<br>
+          3. Confirm it and click <strong>Update Password</strong><br>
+          4. From that moment, <code>francis2025</code> no longer works — only your new password does.<br><br>
+          Your password is hashed with SHA-256 and saved in <em>this browser only</em>. 
+          If you clear browser data or use a different browser/device, 
+          the hash resets to default (<code>francis2025</code>) — so set your new password again.
+          Sessions stay active for 24 hours.
         </div>
       </div>
 
@@ -335,7 +368,21 @@ nav{
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-// ===== DEFAULT PASSWORD HASH (SHA-256 of "francis2025") =====
+
+function togglePw(inputId, eyeId){
+  const input = document.getElementById(inputId);
+  const eye = document.getElementById(eyeId);
+
+  if(input.type === 'password'){
+    input.type = 'text';
+    eye.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    eye.textContent = '👁';
+  }
+}
+
+// ===== DEFAULT PASSWORD HASH (SHA-256 of "2025") =====
 // Change via Settings > Security after first login
 const DEFAULT_HASH = "d9927876b8883e8b9fd58038c0aa3e37983b7135716379068194cd7c6670f941";
 
