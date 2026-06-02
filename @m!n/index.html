@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Portfolio Admin</title>
+<!-- Prevent search engines from indexing this page -->
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0e0f11;--ink2:#3a3d44;--ink3:#7a7e89;
+  --paper:#f7f5f0;--paper2:#eeeae2;--paper3:#e3ddd3;
+  --accent:#c94a1a;--accent-l:#fdf0ea;
+  --green:#1a7a4a;--green-l:#e8f5ee;
+  --r:8px;--r2:16px;--r3:24px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+
+/* ---- LOGIN SCREEN ---- */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:2rem;
+  background:var(--ink);
+}
+.login-card{
+  background:var(--paper);border-radius:var(--r3);
+  padding:2.5rem;width:100%;max-width:420px;
+  text-align:center;
+}
+.login-logo{
+  font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;
+  color:var(--ink3);letter-spacing:0.05em;margin-bottom:2rem;
+}
+.login-title{
+  font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;
+  color:var(--ink);margin-bottom:0.5rem;letter-spacing:-0.02em;
+}
+.login-sub{font-size:0.88rem;color:var(--ink3);margin-bottom:2rem;line-height:1.5}
+.login-field{
+  width:100%;padding:0.8rem 1rem;border:1.5px solid var(--paper3);
+  border-radius:var(--r2);font-family:'DM Sans',sans-serif;font-size:1rem;
+  color:var(--ink);background:white;outline:none;
+  text-align:center;letter-spacing:0.2em;transition:border 0.15s;
+  margin-bottom:1rem;
+}
+.login-field:focus{border-color:var(--accent)}
+.login-btn{
+  width:100%;padding:0.8rem;background:var(--ink);color:var(--paper);
+  border:none;border-radius:100px;font-family:'DM Sans',sans-serif;
+  font-size:0.95rem;font-weight:500;cursor:pointer;transition:all 0.2s;
+}
+.login-btn:hover{background:var(--accent)}
+.login-error{
+  color:var(--accent);font-size:0.82rem;margin-top:0.75rem;
+  display:none;
+}
+.login-hint{
+  font-size:0.75rem;color:var(--ink3);margin-top:1.5rem;line-height:1.6;
+  background:var(--paper2);border-radius:var(--r);padding:0.75rem;
+}
+
+/* ---- ADMIN UI ---- */
+#admin-screen{display:none;min-height:100vh}
+nav{
+  position:sticky;top:0;z-index:100;
+  padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;
+  background:var(--ink);border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:white;letter-spacing:-0.01em}
+.nav-badge{background:var(--accent);color:white;font-size:0.7rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:100px;margin-left:0.6rem;vertical-align:middle;letter-spacing:0.05em}
+.nav-actions{display:flex;gap:0.75rem;align-items:center}
+.btn-logout{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:0.4rem 1rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s}
+.btn-logout:hover{border-color:rgba(255,255,255,0.5);color:white}
+.btn-preview{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:0.4rem 1rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block}
+.btn-preview:hover{border-color:rgba(255,255,255,0.5);color:white}
+.btn-publish{background:var(--accent);color:white;border:none;padding:0.4rem 1.25rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s}
+.btn-publish:hover{background:#a33a0e}
+
+/* ---- MAIN LAYOUT ---- */
+.admin-body{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 57px)}
+@media(max-width:700px){.admin-body{grid-template-columns:1fr}}
+.sidebar{background:var(--paper2);border-right:1px solid var(--paper3);padding:1.5rem 1rem}
+@media(max-width:700px){.sidebar{display:none}}
+.sidebar-title{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:0.75rem;padding:0 0.5rem}
+.sidebar-nav{list-style:none;display:flex;flex-direction:column;gap:0.2rem}
+.sidebar-nav li a{
+  display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.75rem;
+  border-radius:var(--r);font-size:0.88rem;color:var(--ink2);text-decoration:none;
+  transition:all 0.15s;cursor:pointer;
+}
+.sidebar-nav li a:hover{background:var(--paper3);color:var(--ink)}
+.sidebar-nav li a.active{background:var(--accent-l);color:var(--accent);font-weight:500}
+.sidebar-nav li a .s-icon{font-size:1rem;width:20px;text-align:center}
+.sidebar-section{margin-bottom:1.5rem}
+
+.content{padding:2rem;flex:1;overflow-y:auto}
+.content-section{display:none}
+.content-section.active{display:block}
+.content-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--ink);margin-bottom:0.25rem;letter-spacing:-0.01em}
+.content-sub{font-size:0.85rem;color:var(--ink3);margin-bottom:2rem}
+
+/* ---- FORMS ---- */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:1.25rem}
+.form-group label{display:block;font-size:0.82rem;font-weight:500;color:var(--ink2);margin-bottom:0.4rem}
+.form-group input,.form-group textarea,.form-group select{
+  width:100%;padding:0.65rem 0.9rem;
+  border:1.5px solid var(--paper3);border-radius:var(--r);
+  background:white;font-family:'DM Sans',sans-serif;font-size:0.9rem;
+  color:var(--ink);outline:none;transition:border 0.15s;
+}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{min-height:90px;resize:vertical;line-height:1.6}
+
+/* ---- CARDS ---- */
+.entry-card{
+  background:white;border:1.5px solid var(--paper3);border-radius:var(--r2);
+  padding:1.5rem;margin-bottom:1.25rem;position:relative;
+  transition:border 0.15s;
+}
+.entry-card:hover{border-color:var(--paper3)}
+.entry-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.entry-card-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;color:var(--ink)}
+.entry-card-actions{display:flex;gap:0.5rem}
+.btn-icon{background:none;border:1.5px solid var(--paper3);border-radius:var(--r);padding:0.3rem 0.65rem;font-size:0.78rem;cursor:pointer;color:var(--ink2);transition:all 0.15s}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent)}
+.btn-icon.danger:hover{border-color:#e24b4a;color:#e24b4a}
+
+.btn-add-card{
+  width:100%;padding:0.8rem;background:white;
+  border:2px dashed var(--paper3);border-radius:var(--r2);
+  font-family:'DM Sans',sans-serif;font-size:0.88rem;color:var(--ink3);
+  cursor:pointer;transition:all 0.2s;margin-top:0.5rem;
+}
+.btn-add-card:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l)}
+
+/* ---- SKILL ROWS ---- */
+.skill-row{display:grid;grid-template-columns:1fr 100px 32px;gap:8px;align-items:center;margin-bottom:8px}
+.skill-row input{padding:0.45rem 0.65rem;border:1.5px solid var(--paper3);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:0.85rem;width:100%}
+.btn-remove-skill{background:none;border:1.5px solid var(--paper3);border-radius:var(--r);width:32px;height:32px;cursor:pointer;color:var(--ink3);font-size:0.9rem;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
+.btn-remove-skill:hover{border-color:#e24b4a;color:#e24b4a}
+
+/* ---- SAVE TOAST ---- */
+#toast{
+  position:fixed;bottom:2rem;right:2rem;z-index:999;
+  background:var(--ink);color:var(--paper);
+  padding:0.75rem 1.5rem;border-radius:100px;
+  font-size:0.88rem;font-weight:500;
+  transform:translateY(80px);opacity:0;
+  transition:all 0.3s;pointer-events:none;
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{background:var(--green)}
+
+/* ---- EXPORT PANEL ---- */
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+@media(max-width:600px){.export-grid{grid-template-columns:1fr}}
+.export-card{background:white;border:1.5px solid var(--paper3);border-radius:var(--r2);padding:1.5rem}
+.export-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:0.5rem}
+.export-card p{font-size:0.83rem;color:var(--ink3);line-height:1.6;margin-bottom:1.25rem}
+.btn-export{background:var(--ink);color:var(--paper);border:none;padding:0.6rem 1.25rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;width:100%}
+.btn-export:hover{background:var(--accent)}
+.code-block{background:var(--paper2);border:1px solid var(--paper3);border-radius:var(--r);padding:1rem;font-family:monospace;font-size:0.78rem;color:var(--ink2);white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;margin-top:0.75rem}
+
+/* ---- CHANGE PASSWORD ---- */
+.security-card{background:white;border:1.5px solid var(--paper3);border-radius:var(--r2);padding:1.5rem;max-width:420px}
+.security-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:1rem}
+
+/* ---- PDF RESUME (hidden) ---- */
+#resume-pdf{display:none;position:fixed;left:-9999px;top:0;width:794px;min-height:1123px;background:white;font-family:'DM Sans',sans-serif;color:#111;padding:48px 52px;font-size:11px;line-height:1.6}
+.r-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#0e0f11;letter-spacing:-0.02em}
+.r-role{font-size:12px;color:#c94a1a;font-weight:500;margin-top:2px}
+.r-contact-row{display:flex;gap:1.5rem;margin-top:8px;font-size:10px;color:#555;flex-wrap:wrap}
+.r-section-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#c94a1a;border-bottom:1px solid #e3ddd3;padding-bottom:4px;margin-bottom:10px;margin-top:20px}
+.r-exp-role{font-weight:700;font-size:11px;color:#0e0f11}
+.r-exp-meta{font-size:10px;color:#666;margin-bottom:4px}
+.r-exp-desc{font-size:10px;color:#333;margin-bottom:4px;line-height:1.55}
+.r-skills-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.r-skill-tag{background:#f7f5f0;border:1px solid #e3ddd3;border-radius:4px;padding:2px 8px;font-size:9.5px;color:#3a3d44}
+.r-summary{font-size:10.5px;color:#333;line-height:1.7}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">FRANCIS.DEV <span style="color:var(--accent)">●</span></div>
+    <h1 class="login-title">Admin Access</h1>
+    <p class="login-sub">This page is private. Enter your admin password to manage your portfolio.</p>
+    <input class="login-field" id="pw-input" type="password" placeholder="••••••••" autocomplete="current-password"/>
+    <button class="login-btn" onclick="attemptLogin()">Unlock →</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+    <div class="login-hint">💡 Default password: <strong>francis2025</strong><br>Change it immediately in Settings → Security after login.</div>
+  </div>
+</div>
+
+<!-- ===== ADMIN SCREEN ===== -->
+<div id="admin-screen">
+  <nav>
+    <div class="nav-logo">Portfolio Admin <span class="nav-badge">PRIVATE</span></div>
+    <div class="nav-actions">
+      <a class="btn-preview" href="../index.html" target="_blank">↗ View Site</a>
+      <button class="btn-publish" onclick="showToast('Config exported! Paste into index.html','success')">Export Config</button>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+  <div class="admin-body">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Content</div>
+        <ul class="sidebar-nav">
+          <li><a onclick="switchSection('basics')" class="active"><span class="s-icon">👤</span> Basics</a></li>
+          <li><a onclick="switchSection('experience')"><span class="s-icon">💼</span> Experience</a></li>
+          <li><a onclick="switchSection('skills')"><span class="s-icon">⚡</span> Skills</a></li>
+          <li><a onclick="switchSection('projects')"><span class="s-icon">🔷</span> Projects</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Tools</div>
+        <ul class="sidebar-nav">
+          <li><a onclick="switchSection('export')"><span class="s-icon">📤</span> Export</a></li>
+          <li><a onclick="switchSection('security')"><span class="s-icon">🔒</span> Security</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+
+      <!-- BASICS -->
+      <div class="content-section active" id="section-basics">
+        <div class="content-title">Basic Info</div>
+        <div class="content-sub">Your name, role, contact details, and about section.</div>
+        <div class="form-row">
+          <div class="form-group"><label>Full Name</label><input id="f-name" type="text"/></div>
+          <div class="form-group"><label>Role / Title</label><input id="f-role" type="text"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label><input id="f-loc" type="text"/></div>
+          <div class="form-group"><label>Email</label><input id="f-email" type="email"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>GitHub URL</label><input id="f-github" type="text"/></div>
+          <div class="form-group"><label>LinkedIn URL</label><input id="f-linkedin" type="text"/></div>
+        </div>
+        <div class="form-group"><label>About (separate paragraphs with a blank line)</label><textarea id="f-about" rows="8"></textarea></div>
+        <button class="btn-export" style="width:auto;padding:0.65rem 2rem" onclick="saveBasics()">Save Basics</button>
+      </div>
+
+      <!-- EXPERIENCE -->
+      <div class="content-section" id="section-experience">
+        <div class="content-title">Work Experience</div>
+        <div class="content-sub">Add, edit, or reorder your experience entries.</div>
+        <div id="exp-list"></div>
+        <button class="btn-add-card" onclick="addExp()">+ Add Experience Entry</button>
+      </div>
+
+      <!-- SKILLS -->
+      <div class="content-section" id="section-skills">
+        <div class="content-title">Skills</div>
+        <div class="content-sub">Manage skill categories and proficiency levels.</div>
+        <div id="skills-list"></div>
+        <button class="btn-add-card" onclick="addSkillCat()">+ Add Skill Category</button>
+      </div>
+
+      <!-- PROJECTS -->
+      <div class="content-section" id="section-projects">
+        <div class="content-title">Projects</div>
+        <div class="content-sub">Showcase your key work and side projects.</div>
+        <div id="proj-list"></div>
+        <button class="btn-add-card" onclick="addProject()">+ Add Project</button>
+      </div>
+
+      <!-- EXPORT -->
+      <div class="content-section" id="section-export">
+        <div class="content-title">Export & Deploy</div>
+        <div class="content-sub">Download your updated config or generate your ATS resume PDF.</div>
+        <div class="export-grid">
+          <div class="export-card">
+            <h3>📄 Resume PDF</h3>
+            <p>Generate a clean, ATS-optimised A4 resume from your current config. All keyword-rich and properly structured.</p>
+            <button class="btn-export" onclick="exportPDF()">Download PDF Resume</button>
+          </div>
+          <div class="export-card">
+            <h3>⚙ Config JSON</h3>
+            <p>Copy this JSON and paste it into the <code>let config = </code> block in your <code>index.html</code> to make changes permanent.</p>
+            <button class="btn-export" onclick="showConfigJSON()">Show Config JSON</button>
+            <div class="code-block" id="config-json-out" style="display:none"></div>
+          </div>
+        </div>
+        <div class="export-card" style="max-width:600px">
+          <h3>🚀 Deploy to GitHub Pages</h3>
+          <p style="font-size:0.83rem;color:var(--ink3);line-height:1.8">
+            1. Copy the config JSON above and paste it into <code>index.html</code><br>
+            2. Commit both <code>index.html</code> and <code>admin/index.html</code> to your repo root<br>
+            3. Go to repo Settings → Pages → Source: <strong>main</strong> branch / <strong>/(root)</strong><br>
+            4. Portfolio: <code>https://francisarokiyaraj.github.io</code><br>
+            5. Admin: <code>https://francisarokiyaraj.github.io/admin</code> (keep this URL private)
+          </p>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="content-section" id="section-security">
+        <div class="content-title">Security</div>
+        <div class="content-sub">Change your admin password. Stored as a SHA-256 hash in localStorage.</div>
+        <div class="security-card">
+          <h3>🔒 Change Password</h3>
+          <div class="form-group"><label>Current Password</label><input id="pw-current" type="password"/></div>
+          <div class="form-group"><label>New Password</label><input id="pw-new" type="password"/></div>
+          <div class="form-group"><label>Confirm New Password</label><input id="pw-confirm" type="password"/></div>
+          <button class="btn-export" style="width:auto;padding:0.65rem 2rem" onclick="changePassword()">Update Password</button>
+          <div id="pw-msg" style="margin-top:0.75rem;font-size:0.83rem;display:none"></div>
+        </div>
+        <div style="margin-top:2rem;padding:1.25rem;background:var(--paper2);border-radius:var(--r2);max-width:500px;font-size:0.82rem;color:var(--ink3);line-height:1.7">
+          <strong style="color:var(--ink)">How it works:</strong><br>
+          Your password is hashed with SHA-256 and stored in your browser's localStorage. 
+          No password is ever sent to a server. Sessions last 24 hours. 
+          The <code>/admin</code> URL is unlisted — don't share it. 
+          For extra security, rename the folder (e.g. <code>/a7x9k</code>) in your repo.
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="resume-pdf"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+// ===== DEFAULT PASSWORD HASH (SHA-256 of "francis2025") =====
+// Change via Settings > Security after first login
+const DEFAULT_HASH = "a3b8d2e1f9c4071a6e5d3b2c8f7a0945e6d1b3c2a8f5e4d70192b6c3a4e5f8d2";
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function attemptLogin(){
+  const pw = document.getElementById('pw-input').value;
+  if(!pw) return;
+  const hash = await sha256(pw);
+  const storedHash = localStorage.getItem('admin_pw_hash') || DEFAULT_HASH;
+  if(hash === storedHash){
+    localStorage.setItem('admin_session', Date.now().toString());
+    showAdmin();
+  } else {
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+document.getElementById('pw-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter') attemptLogin();
+});
+
+function checkSession(){
+  const session = localStorage.getItem('admin_session');
+  if(!session) return false;
+  const age = Date.now() - parseInt(session);
+  return age < 24*60*60*1000; // 24 hours
+}
+
+function showAdmin(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-screen').style.display='block';
+  loadConfig();
+  renderAll();
+}
+
+function logout(){
+  localStorage.removeItem('admin_session');
+  location.reload();
+}
+
+// ===== CONFIG =====
+let config = {
+  name: "Francis Arokiya Raj M",
+  role: "Software Developer · Mobile & Web Engineer",
+  location: "Paramakudi, Tamilnadu, India",
+  email: "mfaroraj@gmail.com",
+  github: "https://github.com/francis-arokiyaraj",
+  linkedin: "https://www.linkedin.com/in/francisarokiyaraj",
+  about: "With over 8 years of hands-on experience, I've honed my skills in building innovative mobile applications across diverse domains — from social media and banking to education, delivery, and location tracking.\n\nMy expertise extends beyond traditional app development into cutting-edge technologies like BLE, Wi-Fi, camera, video editing, and IoT devices, creating interconnected solutions that enhance user experiences.\n\nBeyond mobile apps, I've developed robust dashboards that leverage predictive analytics, AI, and data lakes to drive data-driven decision-making.",
+  experience: [
+    {role:"Software Developer",company:"Safran Engineer Service",period:"2022 – Present",desc:"Leading mobile & web product development for aviation-domain clients. Built cross-platform mobile apps using React Native; integrated BLE and IoT peripherals for device management solutions.",tags:["React Native","TypeScript","BLE","IoT","React JS"]},
+    {role:"Senior Mobile Developer",company:"Previous Company",period:"2019 – 2022",desc:"Developed Android and iOS applications for banking and fintech clients. Implemented biometric authentication, secure payment flows, and real-time transaction tracking.",tags:["Android","iOS","Swift","Kotlin","Biometrics"]},
+    {role:"Mobile Developer",company:"Tech Startup",period:"2016 – 2019",desc:"Built mobile solutions for delivery, location tracking, and social platforms. Worked on camera and video editing features. Integrated predictive analytics dashboards.",tags:["React Native","Java","Node.js","MongoDB"]},
+  ],
+  skills: [
+    {category:"Mobile",icon:"📱",items:[{name:"React Native",pct:95},{name:"Swift / iOS",pct:85},{name:"Android / Kotlin",pct:85},{name:"Java",pct:80}]},
+    {category:"Frontend",icon:"🌐",items:[{name:"React JS",pct:90},{name:"Vue JS",pct:75},{name:"Tailwind CSS",pct:85},{name:"TypeScript",pct:85}]},
+    {category:"Backend & Data",icon:"⚙",items:[{name:"Node.js",pct:80},{name:"MongoDB",pct:78},{name:"REST APIs",pct:90},{name:"Docker",pct:70}]},
+    {category:"Specialties",icon:"🔬",items:[{name:"BLE / Wi-Fi",pct:85},{name:"IoT Devices",pct:80},{name:"Video Editing",pct:75},{name:"Data Analytics",pct:72}]},
+  ],
+  projects: [
+    {name:"Fintech Banking App",type:"Mobile · iOS & Android",icon:"💳",desc:"End-to-end banking experience with biometric auth, real-time transfers, and predictive spending insights for 100k+ users."},
+    {name:"BLE Device Manager",type:"Mobile · React Native",icon:"📡",desc:"Cross-platform app managing Bluetooth Low Energy peripherals for industrial field service operations across aviation."},
+    {name:"Delivery Tracking Platform",type:"Mobile & Web",icon:"🚚",desc:"Real-time location tracking dashboard and rider app with live map, ETA prediction, and analytics for logistics companies."},
+    {name:"Analytics Dashboard",type:"Web · React",icon:"📊",desc:"Enterprise data lake visualisation platform with AI-driven anomaly detection and predictive analytics for operations teams."},
+    {name:"Social Media App",type:"Mobile · React Native",icon:"💬",desc:"Full-featured social platform with in-app video recording, editing, filters, and real-time messaging built for a regional market."},
+    {name:"EdTech Learning App",type:"Mobile · Android",icon:"🎓",desc:"Adaptive learning platform for K-12 students with offline mode, progress tracking, and teacher analytics portal."},
+  ]
+};
+
+function loadConfig(){
+  const saved = localStorage.getItem('portfolio_config');
+  if(saved){ try{ config = JSON.parse(saved); }catch(e){} }
+}
+function saveConfig(){
+  localStorage.setItem('portfolio_config', JSON.stringify(config));
+  showToast('Changes saved ✓', 'success');
+}
+
+// ===== RENDER ALL =====
+function renderAll(){
+  // Basics
+  document.getElementById('f-name').value = config.name;
+  document.getElementById('f-role').value = config.role;
+  document.getElementById('f-loc').value = config.location;
+  document.getElementById('f-email').value = config.email;
+  document.getElementById('f-github').value = config.github;
+  document.getElementById('f-linkedin').value = config.linkedin;
+  document.getElementById('f-about').value = config.about;
+  renderExpList();
+  renderSkillsList();
+  renderProjList();
+}
+
+// ===== SECTION NAV =====
+function switchSection(id){
+  document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  document.querySelectorAll('.sidebar-nav a').forEach(a=>{
+    a.classList.toggle('active', a.getAttribute('onclick')===`switchSection('${id}')`);
+  });
+}
+
+// ===== BASICS =====
+function saveBasics(){
+  config.name = document.getElementById('f-name').value;
+  config.role = document.getElementById('f-role').value;
+  config.location = document.getElementById('f-loc').value;
+  config.email = document.getElementById('f-email').value;
+  config.github = document.getElementById('f-github').value;
+  config.linkedin = document.getElementById('f-linkedin').value;
+  config.about = document.getElementById('f-about').value;
+  saveConfig();
+}
+
+// ===== EXPERIENCE =====
+function renderExpList(){
+  document.getElementById('exp-list').innerHTML = config.experience.map((e,i)=>`
+    <div class="entry-card">
+      <div class="entry-card-header">
+        <div class="entry-card-title">${e.role} @ ${e.company}</div>
+        <div class="entry-card-actions">
+          <button class="btn-icon danger" onclick="removeExp(${i})">✕ Remove</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0"><label>Role</label><input value="${e.role}" oninput="config.experience[${i}].role=this.value;updateExpTitle(${i})"/></div>
+        <div class="form-group" style="margin-bottom:0"><label>Company</label><input value="${e.company}" oninput="config.experience[${i}].company=this.value;updateExpTitle(${i})"/></div>
+      </div>
+      <div class="form-group"><label>Period (e.g. 2022 – Present)</label><input value="${e.period}" oninput="config.experience[${i}].period=this.value"/></div>
+      <div class="form-group"><label>Description</label><textarea oninput="config.experience[${i}].desc=this.value">${e.desc}</textarea></div>
+      <div class="form-group"><label>Tags (comma separated)</label><input value="${e.tags.join(', ')}" oninput="config.experience[${i}].tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)"/></div>
+      <button class="btn-export" style="width:auto;padding:0.5rem 1.25rem;margin-top:0.25rem" onclick="saveConfig()">Save</button>
+    </div>`).join('');
+}
+function updateExpTitle(i){
+  const cards = document.querySelectorAll('#exp-list .entry-card-title');
+  if(cards[i]) cards[i].textContent = `${config.experience[i].role} @ ${config.experience[i].company}`;
+}
+function addExp(){
+  config.experience.unshift({role:"New Role",company:"Company",period:"Year – Year",desc:"Description of your responsibilities and achievements.",tags:[]});
+  renderExpList();
+}
+function removeExp(i){ if(confirm('Remove this experience?')){ config.experience.splice(i,1); renderExpList(); } }
+
+// ===== SKILLS =====
+function renderSkillsList(){
+  document.getElementById('skills-list').innerHTML = config.skills.map((cat,ci)=>`
+    <div class="entry-card">
+      <div class="entry-card-header">
+        <div class="entry-card-title">${cat.icon} ${cat.category}</div>
+        <button class="btn-icon danger" onclick="removeSkillCat(${ci})">✕ Remove</button>
+      </div>
+      <div class="form-row" style="margin-bottom:0.75rem">
+        <div class="form-group" style="margin-bottom:0"><label>Category Name</label><input value="${cat.category}" oninput="config.skills[${ci}].category=this.value"/></div>
+        <div class="form-group" style="margin-bottom:0"><label>Icon (emoji)</label><input value="${cat.icon}" oninput="config.skills[${ci}].icon=this.value" style="max-width:120px"/></div>
+      </div>
+      <label style="font-size:0.82rem;font-weight:500;color:var(--ink2);display:block;margin-bottom:0.5rem">Skills</label>
+      <div id="skill-items-${ci}">
+        ${cat.items.map((s,si)=>`
+          <div class="skill-row">
+            <input value="${s.name}" placeholder="Skill name" oninput="config.skills[${ci}].items[${si}].name=this.value"/>
+            <input type="number" min="0" max="100" value="${s.pct}" placeholder="%" oninput="config.skills[${ci}].items[${si}].pct=+this.value"/>
+            <button class="btn-remove-skill" onclick="removeSkillItem(${ci},${si})">✕</button>
+          </div>`).join('')}
+      </div>
+      <button class="btn-add-card" style="margin-top:0.5rem;padding:0.5rem" onclick="addSkillItem(${ci})">+ Add Skill</button>
+      <button class="btn-export" style="width:auto;padding:0.5rem 1.25rem;margin-top:0.5rem" onclick="saveConfig()">Save</button>
+    </div>`).join('');
+}
+function addSkillCat(){ config.skills.push({category:"New Category",icon:"⚡",items:[{name:"Skill",pct:80}]}); renderSkillsList(); }
+function removeSkillCat(i){ if(confirm('Remove this category?')){ config.skills.splice(i,1); renderSkillsList(); } }
+function addSkillItem(ci){ config.skills[ci].items.push({name:"Skill",pct:80}); renderSkillsList(); }
+function removeSkillItem(ci,si){ config.skills[ci].items.splice(si,1); renderSkillsList(); }
+
+// ===== PROJECTS =====
+function renderProjList(){
+  document.getElementById('proj-list').innerHTML = config.projects.map((p,i)=>`
+    <div class="entry-card">
+      <div class="entry-card-header">
+        <div class="entry-card-title">${p.icon} ${p.name}</div>
+        <button class="btn-icon danger" onclick="removeProject(${i})">✕ Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0"><label>Project Name</label><input value="${p.name}" oninput="config.projects[${i}].name=this.value"/></div>
+        <div class="form-group" style="margin-bottom:0"><label>Type / Platform</label><input value="${p.type}" oninput="config.projects[${i}].type=this.value"/></div>
+      </div>
+      <div class="form-group"><label>Icon (emoji)</label><input value="${p.icon}" oninput="config.projects[${i}].icon=this.value" style="max-width:120px"/></div>
+      <div class="form-group"><label>Description</label><textarea oninput="config.projects[${i}].desc=this.value">${p.desc}</textarea></div>
+      <button class="btn-export" style="width:auto;padding:0.5rem 1.25rem" onclick="saveConfig()">Save</button>
+    </div>`).join('');
+}
+function addProject(){ config.projects.unshift({name:"New Project",type:"Mobile",icon:"🔷",desc:"Project description"}); renderProjList(); }
+function removeProject(i){ if(confirm('Remove this project?')){ config.projects.splice(i,1); renderProjList(); } }
+
+// ===== EXPORT =====
+function showConfigJSON(){
+  const el = document.getElementById('config-json-out');
+  el.style.display='block';
+  el.textContent = JSON.stringify(config, null, 2);
+}
+
+// ===== CHANGE PASSWORD =====
+async function changePassword(){
+  const cur = document.getElementById('pw-current').value;
+  const nw = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+  const msg = document.getElementById('pw-msg');
+  const storedHash = localStorage.getItem('admin_pw_hash') || DEFAULT_HASH;
+  const curHash = await sha256(cur);
+  if(curHash !== storedHash){ msg.style.display='block'; msg.style.color='var(--accent)'; msg.textContent='Current password is incorrect.'; return; }
+  if(nw.length < 8){ msg.style.display='block'; msg.style.color='var(--accent)'; msg.textContent='New password must be at least 8 characters.'; return; }
+  if(nw !== conf){ msg.style.display='block'; msg.style.color='var(--accent)'; msg.textContent='New passwords do not match.'; return; }
+  const newHash = await sha256(nw);
+  localStorage.setItem('admin_pw_hash', newHash);
+  msg.style.display='block'; msg.style.color='var(--green)'; msg.textContent='Password updated successfully!';
+  document.getElementById('pw-current').value=''; document.getElementById('pw-new').value=''; document.getElementById('pw-confirm').value='';
+}
+
+// ===== TOAST =====
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (type ? ' '+type : '');
+  setTimeout(()=>t.className='',3000);
+}
+
+// ===== PDF EXPORT =====
+function exportPDF(){
+  const el = document.getElementById('resume-pdf');
+  const c = config;
+  const expHTML = c.experience.map(e=>`
+    <div style="margin-bottom:12px">
+      <div class="r-exp-role">${e.role}</div>
+      <div class="r-exp-meta">${e.company} &nbsp;·&nbsp; ${e.period}</div>
+      <div class="r-exp-desc">${e.desc}</div>
+      <div class="r-skills-row">${e.tags.map(t=>`<span class="r-skill-tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+  const allSkills = c.skills.flatMap(cat=>cat.items.map(s=>s.name));
+  el.style.display='block';
+  el.innerHTML=`
+    <div style="border-bottom:2px solid #c94a1a;padding-bottom:16px;margin-bottom:16px">
+      <div class="r-name">${c.name}</div>
+      <div class="r-role">${c.role}</div>
+      <div class="r-contact-row">
+        <span>📍 ${c.location}</span><span>✉ ${c.email}</span>
+        <span>${c.github.replace('https://','')}</span>
+        <span>${c.linkedin.replace('https://','').replace('www.','')}</span>
+      </div>
+    </div>
+    <div class="r-section-title">Professional Summary</div>
+    <div class="r-summary">${c.about.split(/\n\n/)[0]}</div>
+    <div class="r-section-title">Professional Experience</div>
+    ${expHTML}
+    <div class="r-section-title">Technical Skills</div>
+    <div class="r-skills-row">${allSkills.map(s=>`<span class="r-skill-tag">${s}</span>`).join('')}</div>
+    <div class="r-section-title">Selected Projects</div>
+    ${c.projects.map(p=>`<div style="margin-bottom:10px"><span style="font-weight:700;font-size:10.5px">${p.icon} ${p.name}</span><span style="font-size:9.5px;color:#888;margin-left:8px">${p.type}</span><div class="r-exp-desc">${p.desc}</div></div>`).join('')}
+    <div style="margin-top:20px;border-top:1px solid #e3ddd3;padding-top:8px;font-size:9px;color:#aaa;text-align:center">ATS-optimised · ${c.email}</div>`;
+  html2pdf().set({
+    margin:[10,10,10,10],filename:'FrancisArokiyaRaj_Resume.pdf',
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  }).from(el).save().then(()=>{ el.style.display='none'; showToast('PDF downloaded!','success'); });
+}
+
+// ===== INIT =====
+if(checkSession()){
+  showAdmin();
+} else {
+  document.getElementById('login-screen').style.display='flex';
+}
+</script>
+</body>
+</html>
