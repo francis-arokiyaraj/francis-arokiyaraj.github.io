@@ -33,8 +33,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .nav-links a:hover{color:var(--accent)}
 .btn-pdf{background:var(--accent);color:#fff;border:none;padding:0.5rem 1.25rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block}
 .btn-pdf:hover{background:#a33a0e;transform:translateY(-1px)}
-.btn-edit{background:transparent;border:1.5px solid var(--ink3);color:var(--ink2);padding:0.5rem 1.25rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.875rem;cursor:pointer;transition:all 0.2s;margin-right:0.5rem}
-.btn-edit:hover{border-color:var(--ink);color:var(--ink)}
+
 
 /* ---- HERO ---- */
 #hero{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;padding:7rem 2rem 4rem}
@@ -185,7 +184,6 @@ footer{background:var(--ink);color:var(--paper);padding:1.5rem 2rem;text-align:c
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div>
-    <button class="btn-edit" onclick="openEdit()">✏ Edit</button>
     <button class="btn-pdf" onclick="exportPDF()">⬇ Resume PDF</button>
   </div>
 </nav>
@@ -678,6 +676,14 @@ function exportPDF(){
     el.style.display='none';
   });
 }
+
+// Load saved config from admin panel if available
+(function(){
+  try{
+    const saved = localStorage.getItem('portfolio_config');
+    if(saved) config = JSON.parse(saved);
+  }catch(e){}
+})();
 
 // INIT
 render();
